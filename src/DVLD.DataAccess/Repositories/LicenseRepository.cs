@@ -62,8 +62,8 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<LicenseDto>> GetPagedAsync(PaginationParams paging, CancellationToken ct = default)
             => await _context.Licenses
                 .AsNoTracking()
-                .OrderBy(l => l.LicenseId)
                 .ProjectToDto()
+                .OrderBy(l => l.LicenseId)
                 .ToPagedListAsync(paging, ct);
 
         public async Task<LicenseDto?> GetByIdAsync(int licenseId, CancellationToken ct = default)
@@ -84,8 +84,8 @@ namespace DVLD.DataAccess.Repositories
             => await _context.Licenses
                 .AsNoTracking()
                 .Where(l => l.DriverId == driverId)
-                .OrderBy(l => l.LicenseId)
                 .ProjectToDriverLicensesDto()
+                .OrderBy(l => l.LicenseId)
                 .ToPagedListAsync(paging, ct);
 
         public async Task<LicenseDto> UpdateAsync(int licenseId, LicenseDto licenseDTO, CancellationToken ct = default)

@@ -6,23 +6,28 @@ namespace DVLD.DataAccess.Mapping
     public static class PaginationExtensions
     {
         public static async Task<PagedResult<T>> ToPagedListAsync<T>(
-            this IQueryable<T> source,
+            this IOrderedQueryable<T> source,
             PaginationParams paging,
             CancellationToken ct = default)
         {
-            var totalCount = await source.CountAsync(ct);
+            var pageIndex = paging.PageNumber - 1;
 
-            var items = await source
-                .Skip((paging.PageNumber - 1) * paging.PageSize)
+            var result = await source
+                .Skip(pageIndex * paging.PageSize)
                 .Take(paging.PageSize)
+                .Select(item => new
+                {
+                    Item = item,
+                    TotalCount = source.Count()
+                })
                 .ToListAsync(ct);
 
             return new PagedResult<T>
             {
-                Items = items,
+                Items = result.Select(r => r.Item).ToList(),
+                TotalCount = result.FirstOrDefault()?.TotalCount ?? 0,
                 PageNumber = paging.PageNumber,
-                PageSize = paging.PageSize,
-                TotalCount = totalCount
+                PageSize = paging.PageSize
             };
         }
     }

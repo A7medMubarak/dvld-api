@@ -36,8 +36,8 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<TestAppointmentViewDto>> GetPagedAsync(PaginationParams paging, CancellationToken ct = default)
             => await _context.TestAppointments
                 .AsNoTracking()
-                .OrderBy(t => t.TestAppointmentId)
                 .ProjectToView()
+                .OrderBy(t => t.TestAppointmentId)
                 .ToPagedListAsync(paging, ct);
 
         public async Task<IReadOnlyList<TestAppointmentByTestTypeDto>> GetAllByTestTypeAsync(int localLicenseAppId, int testTypeId, CancellationToken ct = default)

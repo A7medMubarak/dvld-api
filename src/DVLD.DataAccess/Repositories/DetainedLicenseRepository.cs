@@ -38,8 +38,8 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<DetainedLicenseViewDto>> GetPagedAsync(PaginationParams paging, CancellationToken cancellationToken)
             => await _context.DetainedLicenses
                 .AsNoTracking()
-                .OrderByDescending(d => d.DetainId)
                 .ProjectToView()
+                .OrderByDescending(d => d.DetainId)
                 .ToPagedListAsync(paging, cancellationToken);
 
         public async Task<DetainedLicenseDto?> GetByDetainIdAsync(int detainId, CancellationToken cancellationToken)

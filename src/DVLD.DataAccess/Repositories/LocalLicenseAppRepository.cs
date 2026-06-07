@@ -59,8 +59,8 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<LocalLicenseViewDto>> GetPagedAsync(PaginationParams paging, CancellationToken ct = default)
             => await _context.LocalDrivingLicenseApplications
                 .AsNoTracking()
-                .OrderBy(l => l.LocalDrivingLicenseApplicationId)
                 .ProjectToView()
+                .OrderBy(l => l.LocalDrivingLicenseApplicationId)
                 .ToPagedListAsync(paging, ct);
 
         public async Task<LocalLicenseAppDto?> GetByApplicationIdAsync(int applicationId, CancellationToken ct = default)

@@ -78,7 +78,7 @@ No lint, format, or CI tooling is configured.
 
 | # | Issue | Location |
 |---|---|---|
-| 1 | `appsettings.json` is an **EmbeddedResource** (not Content). Modifying at runtime won't work — must rebuild. | `src/DVLD.Api/DVLD.Api.csproj:9-16` |
+| 1 | ~~`appsettings.json` was **EmbeddedResource** (not Content). Modifying at runtime wouldn't work without rebuild.~~ **FIXED**: Changed to `<Content CopyToOutputDirectory="PreserveNewest">`. | `src/DVLD.Api/DVLD.Api.csproj:28-31` |
 | 2 | ~~`ICountryService`/`CountryService` exist but are **missing from DI registration** in `AddServices()`. Injection at runtime will throw.~~ **FIXED**: Added `services.AddScoped<ICountryService, CountryService>()`. | `src/DVLD.Api/Extensions/ServiceCollectionExtensions.cs` |
 | 3 | ~~`PasswordService` is a `static` class with no interface — inconsistent with the rest of the DI pattern.~~ **FIXED**: Extracted `IPasswordService` interface, made `PasswordService` non-static, registered in DI. | `src/DVLD.Business/Services/PasswordService.cs` |
 | 4 | ~~`AppDbContext.cs` has `FindAsync(int)` that throws `NotImplementedException`~~ **FIXED**: Removed dead code (was never called). | `src/DVLD.DataAccess/Data/AppDbContext.cs` |

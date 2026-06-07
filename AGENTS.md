@@ -48,6 +48,9 @@ dotnet ef migrations add <Name> --project .\src\DVLD.DataAccess --startup-projec
 
 # Apply pending migrations
 dotnet ef database update --project .\src\DVLD.DataAccess --startup-project .\src\DVLD.Api
+
+# Seed the database (after migrations)
+sqlcmd -S . -d DVLD-EFCore -i database\seed.sql
 ```
 
 No lint, format, or CI tooling is configured.

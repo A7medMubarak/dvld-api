@@ -36,6 +36,7 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<TestAppointmentViewDto>> GetPagedAsync(PaginationParams paging, CancellationToken ct = default)
             => await _context.TestAppointments
                 .AsNoTracking()
+                .OrderBy(t => t.TestAppointmentId)
                 .ProjectToView()
                 .ToPagedListAsync(paging, ct);
 
@@ -64,7 +65,8 @@ namespace DVLD.DataAccess.Repositories
                    PaidFees = t.PaidFees,
                    IsLocked = t.IsLocked 
                })
-               .ToPagedListAsync(paging, ct);
+                .OrderBy(t => t.TestAppointmentId)
+                .ToPagedListAsync(paging, ct);
 
         public async Task<TestAppointmentDto?> GetByIdAsync(int id, CancellationToken ct = default)
             => await _context.TestAppointments

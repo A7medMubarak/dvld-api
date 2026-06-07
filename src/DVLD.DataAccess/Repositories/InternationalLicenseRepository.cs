@@ -43,6 +43,7 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<InternationalLicenseDto>> GetPagedAsync(PaginationParams paging, CancellationToken ct = default)
             => await _context.InternationalLicenses
                 .AsNoTracking()
+                .OrderBy(i => i.InternationalLicenseId)
                 .ProjectToDto()
                 .ToPagedListAsync(paging, ct);
         
@@ -57,6 +58,7 @@ namespace DVLD.DataAccess.Repositories
             => await _context.InternationalLicenses
                 .AsNoTracking()
                 .Where(i => i.DriverId == driverId)
+                .OrderBy(i => i.InternationalLicenseId)
                 .ProjectToDto()
                 .ToPagedListAsync(paging, ct);
 

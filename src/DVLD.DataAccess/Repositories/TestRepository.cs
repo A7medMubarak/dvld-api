@@ -36,6 +36,7 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<TestDto>> GetPagedAsync(PaginationParams paging, CancellationToken ct = default)
             => await _context.Tests
                 .AsNoTracking()
+                .OrderBy(t => t.TestId)
                 .ProjectToDto()
                 .ToPagedListAsync(paging, ct);
 

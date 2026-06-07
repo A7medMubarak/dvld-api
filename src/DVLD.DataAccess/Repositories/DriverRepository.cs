@@ -51,6 +51,7 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<DriverDto>> GetPagedAsync(PaginationParams paging, CancellationToken cancellationToken = default)
             => await _context.Drivers
                 .AsNoTracking()
+                .OrderBy(d => d.DriverId)
                 .ProjectToDto()
                 .ToPagedListAsync(paging, cancellationToken);
 

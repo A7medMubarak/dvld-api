@@ -93,6 +93,7 @@ namespace DVLD.DataAccess.Repositories
         public async Task<PagedResult<UserDto>> GetPagedAsync(PaginationParams paging, CancellationToken cancellationToken = default)
             => await _context.Users
                 .AsNoTracking()
+                .OrderBy(u => u.UserId)
                 .ProjectToDto()
                 .ToPagedListAsync(paging, cancellationToken);
 

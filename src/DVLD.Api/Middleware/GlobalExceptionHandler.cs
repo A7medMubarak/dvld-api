@@ -35,7 +35,7 @@ namespace DVLD.Api.Middleware
                     context.Request.Path);
             }
 
-            // ValidationException gets special treatment — includes field errors
+            // ValidationException gets special treatment ï¿½ includes field errors
             if (exception is ValidationException validationEx) 
             {
                 var validationProblem = new ValidationProblemDetails((IDictionary<string, string[]>)validationEx.Errors)
@@ -52,12 +52,17 @@ namespace DVLD.Api.Middleware
                 return true;
             }
 
-            // 3. Build ProblemDetails response
+            // 3. Redact details for server errors (never leak internals to client)
+            var detail = statusCode >= 500
+                ? "An unexpected error occurred. Please try again later."
+                : exception.Message;
+
+            // 4. Build ProblemDetails response
             var problem = new ProblemDetails
             {
                 Status = statusCode,
                 Title = title,
-                Detail = exception.Message,
+                Detail = detail,
                 Instance = $"{context.Request.Method} {context.Request.Path}"
             };
 
@@ -72,23 +77,23 @@ namespace DVLD.Api.Middleware
         private static (int statusCode, string title) MapException(Exception exception)
             => exception switch
             {
-                // 400 — bad input from client
+                // 400 ï¿½ bad input from client
                 ValidationException => (400, "Validation Failed"),
                 ArgumentNullException => (400, "Bad Request"),
                 ArgumentOutOfRangeException => (400, "Bad Request"),
                 ArgumentException => (400, "Bad Request"),
 
-                // 404 — resource not found
+                // 404 ï¿½ resource not found
                 KeyNotFoundException => (404, "Not Found"),
 
-                // 409 — conflict (duplicate, invalid state)
+                // 409 ï¿½ conflict (duplicate, invalid state)
                 ResourceConflictException => (409, "Conflict"),
                 InvalidOperationException => (500, "Internal Server Error"),
 
-                // 401 — not authenticated
+                // 401 ï¿½ not authenticated
                 UnauthorizedAccessException => (401, "Unauthorized"),
 
-                // 500 — everything else is our fault
+                // 500 ï¿½ everything else is our fault
                 _ => (500, "Internal Server Error")
             };
     }

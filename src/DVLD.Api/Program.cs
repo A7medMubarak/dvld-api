@@ -101,7 +101,9 @@ namespace DVLD.Api
         private static bool IsSqlCommandLogEvent(Serilog.Events.LogEvent e)
         {
             return e.Properties.TryGetValue("SourceContext", out var sc)
-                && sc.ToString().Contains("Microsoft.EntityFrameworkCore.Database.Command");
+                && sc is Serilog.Events.ScalarValue sv
+                && sv.Value is string context
+                && context.StartsWith("Microsoft.EntityFrameworkCore.Database.Command");
         }
     }
 }

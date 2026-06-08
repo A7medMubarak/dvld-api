@@ -65,7 +65,7 @@ No lint, format, or CI tooling is configured.
 - **Async all the way**: every service & repository method accepts `CancellationToken cancellationToken = default`
 - **Repository pattern**: repositories map between EF Core entities and Contracts DTOs using `Expression<Func>` projection (`EntityToDto`)
 - **Services** orchestrate business logic, validate inputs, throw `ArgumentException` / `KeyNotFoundException` / `InvalidOperationException`
-- **Global exception handler** (`src/DVLD.Api/Middleware/GlobalExceptionHandler.cs`) maps exceptions to status codes and logs. Maps: `ArgumentException`/`ValidationException` → 400, `KeyNotFoundException` → 404, `InvalidOperationException` → 409, `UnauthorizedAccessException` → 401, default → 500
+- **Global exception handler** (`src/DVLD.Api/Middleware/GlobalExceptionHandler.cs`) maps exceptions to status codes and logs. Maps: `ArgumentException`/`ValidationException` → 400, `KeyNotFoundException` → 404, `InvalidOperationException` → 500, `UnauthorizedAccessException` → 401, default → 500
 - **FluentValidation auto-validation** via `SharpGrip.FluentValidation.AutoValidation.Mvc` — validators live in `src/DVLD.Contracts/Validators/`, registered from `AddValidatorsFromAssemblyContaining<LicenseClassWriteRequest>()`
 - **DI registration** centralized in `src/DVLD.Api/Extensions/ServiceCollectionExtensions.cs`
 - **JWT auth** configured with `JwtSettings` from `appsettings.json` (placeholder secret — replace before production)

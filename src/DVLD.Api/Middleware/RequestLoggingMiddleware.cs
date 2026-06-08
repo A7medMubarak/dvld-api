@@ -20,7 +20,9 @@ namespace DVLD.Api.Middleware
             try
             {
                 await _next(context);
-
+            }
+            finally
+            {
                 var elapsed = Stopwatch.GetElapsedTime(start);
                 var statusCode = context.Response.StatusCode;
                 var method = context.Request.Method;
@@ -44,10 +46,6 @@ namespace DVLD.Api.Middleware
                         "{Method} {Path} responded {StatusCode} in {Elapsed}ms",
                         method, path, statusCode, elapsed.TotalMilliseconds);
                 }
-            }
-            catch
-            {
-                throw;
             }
         }
     }

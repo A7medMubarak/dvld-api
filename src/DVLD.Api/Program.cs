@@ -77,8 +77,8 @@ namespace DVLD.Api
                     app.UseSwaggerUI();
                 }
 
-                app.UseExceptionHandler();
                 app.UseMiddleware<RequestLoggingMiddleware>();
+                app.UseExceptionHandler();
                 app.UseHttpsRedirection();
                 app.UseCors("DVLDApiCorsPolicy");
                 app.UseAuthentication();

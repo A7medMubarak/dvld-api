@@ -19,7 +19,7 @@ namespace DVLD.Api.Controllers
             _service = service;
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{driverId:int}", Name = "GetDriverInfoByDriverId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -35,7 +35,7 @@ namespace DVLD.Api.Controllers
             return Ok(d);
         } 
 
-        [AllowAnonymous]
+
         [HttpGet("person/{personId:int}", Name = "GetDriverInfoByPersonId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -51,7 +51,7 @@ namespace DVLD.Api.Controllers
             return Ok(d);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 

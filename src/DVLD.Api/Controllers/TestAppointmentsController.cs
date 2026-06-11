@@ -32,7 +32,7 @@ namespace DVLD.Api.Controllers
             return CreatedAtRoute("GetTestAppointmentById", new { id = created.TestAppointmentId }, created);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{id}", Name = "GetTestAppointmentById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -48,14 +48,14 @@ namespace DVLD.Api.Controllers
             return Ok(testAppointment);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 
         public async Task<ActionResult<PagedResult<TestAppointmentViewDto>>> GetAllAsync([FromQuery] PaginationParams paging, CancellationToken ct = default)
             => Ok(await _service.GetPagedAsync(paging, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("by-test-type")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -67,7 +67,7 @@ namespace DVLD.Api.Controllers
             return Ok(list);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("latest")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,7 +78,7 @@ namespace DVLD.Api.Controllers
             return Ok(last);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("test-by-appointment/{testAppointmentId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

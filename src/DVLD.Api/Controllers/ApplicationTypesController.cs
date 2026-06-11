@@ -18,7 +18,7 @@ namespace DVLD.Api.Controllers
             _service = service;
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{id:int}", Name = "GetApplicationTypeById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -34,7 +34,7 @@ namespace DVLD.Api.Controllers
             return Ok(appType);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 

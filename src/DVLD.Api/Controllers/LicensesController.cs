@@ -19,7 +19,7 @@ namespace DVLD.Api.Controllers
             _service = service; 
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{id:int}", Name = "GetLicenseById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -35,14 +35,14 @@ namespace DVLD.Api.Controllers
             return Ok(license);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 
         public async Task<ActionResult<PagedResult<LicenseDto>>> GetAllAsync([FromQuery] PaginationParams paging, CancellationToken ct = default)
             => Ok(await _service.GetPagedAsync(paging, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("driver/{driverId:int}/licenses")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -54,7 +54,7 @@ namespace DVLD.Api.Controllers
             return Ok(licensesList);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("person/{personId:int}/active-license/{licenseClassId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

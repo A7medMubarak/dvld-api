@@ -19,7 +19,7 @@ namespace DVLD.Api.Controllers
             _service = service;    
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{id:int}", Name = "GetTestById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -35,14 +35,14 @@ namespace DVLD.Api.Controllers
             return Ok(test);    
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 
         public async Task<ActionResult<PagedResult<TestDto>>> GetAllAsync([FromQuery] PaginationParams paging, CancellationToken ct = default)
             => Ok(await _service.GetPagedAsync(paging, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("latest")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -60,7 +60,7 @@ namespace DVLD.Api.Controllers
             return Ok(test);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("passed-count")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -18,7 +18,7 @@ namespace DVLD.Api.Controllers
             _service = service;
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{id:int}", Name = "GetLicenseClassById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -34,7 +34,7 @@ namespace DVLD.Api.Controllers
             return Ok(licenseClass);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("by-name{className}", Name = "GetLicenseClassByClassName")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -50,7 +50,7 @@ namespace DVLD.Api.Controllers
             return Ok(licenseClass);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 

@@ -19,7 +19,7 @@ namespace DVLD.Api.Controllers
             _localLicenseAppService = localLicenseAppService;
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{localLicenseAppId:int}", Name = "GetByLocalLicenseAppId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -35,7 +35,7 @@ namespace DVLD.Api.Controllers
             return Ok(app);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("by-application/{applicationId:int}", Name = "GetByApplicationId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,14 +51,14 @@ namespace DVLD.Api.Controllers
             return Ok(app);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 
         public async Task<ActionResult<PagedResult<LocalLicenseViewDto>>> GetAllAsync([FromQuery] PaginationParams paging, CancellationToken ct = default)
             => Ok(await _localLicenseAppService.GetPagedAsync(paging, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("{localLicenseId:int}/attempt-count/{testTypeId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -67,7 +67,7 @@ namespace DVLD.Api.Controllers
         public async Task<ActionResult<byte>> GetTestAttemptCountAsync(int localLicenseId, int testTypeId, CancellationToken ct = default)
             => Ok(await _localLicenseAppService.GetTestAttemptCountAsync(localLicenseId, testTypeId, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("{localLicenseId:int}/active-appointment/{testTypeId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -76,7 +76,7 @@ namespace DVLD.Api.Controllers
         public async Task<ActionResult<bool>> HasActiveTestAppointmentAsync(int localLicenseId, int testTypeId, CancellationToken ct = default)
             => Ok(await _localLicenseAppService.HasActiveTestAppointmentAsync(localLicenseId, testTypeId, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("{localLicenseId:int}/has-attended/{testTypeId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -85,7 +85,7 @@ namespace DVLD.Api.Controllers
         public async Task<ActionResult<bool>> HasAttendedTestAsync(int localLicenseId, int testTypeId, CancellationToken ct = default)
             => Ok(await _localLicenseAppService.HasAttendedTestAsync(localLicenseId, testTypeId, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("{localLicenseId:int}/has-Passed/{testTypeId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,7 +131,7 @@ namespace DVLD.Api.Controllers
             return NoContent();
         }
 
-        [AllowAnonymous]
+
         [HttpGet("exists{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

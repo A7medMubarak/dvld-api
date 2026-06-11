@@ -20,7 +20,7 @@ namespace DVLD.Api.Controllers
             _service = service;
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{id:int}", Name = "GetPersonById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -36,7 +36,7 @@ namespace DVLD.Api.Controllers
             return Ok(person);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("by-national-no")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -52,7 +52,7 @@ namespace DVLD.Api.Controllers
             return Ok(person);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 

@@ -19,7 +19,7 @@ namespace DVLD.Api.Controllers
             _service = service;
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{id:int}", Name = "GetApplicationById")]
         [ProducesResponseType(typeof(ApplicationDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -33,7 +33,7 @@ namespace DVLD.Api.Controllers
         }
          
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 
@@ -86,7 +86,7 @@ namespace DVLD.Api.Controllers
         }
 
 
-        [AllowAnonymous]
+
         [HttpGet("active")]   // GET /api/applications/active?personId=1&typeId=2&licenseClassId=3
         [ProducesResponseType(typeof(ApplicationDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]

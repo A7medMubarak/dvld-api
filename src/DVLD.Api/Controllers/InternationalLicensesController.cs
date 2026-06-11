@@ -19,7 +19,7 @@ namespace DVLD.Api.Controllers
             _internationalLicenseService = internationalLicenseService;
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{id}", Name = "GetInternationalLicenseById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -47,7 +47,7 @@ namespace DVLD.Api.Controllers
             return CreatedAtRoute("GetInternationalLicenseById", new { id = created.InternationalLicenseId }, created);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("active/by-driver/{driverId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -63,14 +63,14 @@ namespace DVLD.Api.Controllers
             return Ok(found);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 
         public async Task<ActionResult<PagedResult<InternationalLicenseDto>>> GetAllAsync([FromQuery] PaginationParams paging, CancellationToken ct = default)
             => Ok(await _internationalLicenseService.GetPagedAsync(paging, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("by-driver/{driverId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

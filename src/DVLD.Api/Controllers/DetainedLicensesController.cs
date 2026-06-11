@@ -31,14 +31,14 @@ namespace DVLD.Api.Controllers
             return CreatedAtRoute("GetDetainedLicenseByDetainId", new { detainId = created.DetainId }, created);
         }
 
-        [AllowAnonymous]
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
 
         public async Task<ActionResult<PagedResult<DetainedLicenseViewDto>>> GetAllAsync([FromQuery] PaginationParams paging, CancellationToken ct = default)
             => Ok(await _detainedLicenseService.GetPagedAsync(paging, ct));
 
-        [AllowAnonymous]
+
         [HttpGet("{detainId}", Name = "GetDetainedLicenseByDetainId")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -54,7 +54,7 @@ namespace DVLD.Api.Controllers
             return Ok(detainedLicense);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("by-license/{licenseId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -70,7 +70,7 @@ namespace DVLD.Api.Controllers
             return Ok(detainedLicense);
         }
 
-        [AllowAnonymous]
+
         [HttpGet("{licenseId}/is-detained")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

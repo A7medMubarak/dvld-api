@@ -191,21 +191,33 @@ Startup fails fast if the secret is missing/short or Issuer/Audience are empty.
 ### 2. Database (run once from your machine)
 
 ```powershell
+# Point ONLY this terminal at prod (session-scoped — never machine-wide,
+# or local dev will hit production). Clear it when done.
+$env:ConnectionStrings__DefaultConnection = "Server=<prod-server>;initial catalog=DVLD-EFCore;User Id=<sql-user>;Password=<sql-password>;TrustServerCertificate=True"
+
+# 1. Create all tables (4 migrations). Requires dotnet-ef 8.x:
+#    dotnet new tool-manifest; dotnet tool install dotnet-ef --version 8.0.14
 dotnet ef database update --project src\DVLD.DataAccess --startup-project src\DVLD.Api
-sqlcmd -S <prod-server> -U <sql-user> -P <sql-password> -d DVLD-EFCore -i database\seed.sql
+
+# 2. Insert starter data — RUN ONCE (re-runs fail on duplicate keys by design)
+sqlcmd -S <prod-server> -U <sql-user> -P "<sql-password>" -d DVLD-EFCore -i database\seed.sql
+
+Remove-Item Env:\ConnectionStrings__DefaultConnection
 ```
 
-Explicit step — the app never auto-migrates on startup.
+Verify 4 rows in the prod DB's `__EFMigrationsHistory` table afterwards.
+If `sqlcmd` times out, enable remote SQL access / whitelist your IP in the hosting
+panel first. Explicit step — the app never auto-migrates on startup.
 
-### 3. Publish & upload
+### 3. Publish via Web Deploy
 
-```powershell
-dotnet publish .\src\DVLD.Api\DVLD.Api.csproj -c Release
-```
+In Visual Studio: right-click `DVLD.Api` → **Publish** → import the host's
+`.publishsettings` file → **Publish** (Release). This compiles and uploads in one
+step — no manual file copying (source code, `tests/`, and `*.sln` never go to the server).
 
-Upload the publish output via Plesk file manager / Web Deploy, add your domain,
-enable the free Let's Encrypt certificate, and point the host's uptime monitor at
-`GET /health`.
+Publishing moves files only — it does **not** set environment variables, migrate,
+or seed. Then in the hosting panel: add your domain, enable the free Let's Encrypt
+certificate, and point the uptime monitor at `GET /health`.
 
 ### 4. Verify
 

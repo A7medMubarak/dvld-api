@@ -9,7 +9,10 @@
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "DefaultConnection": "Server=your-server;initial catalog=DVLD-EFCore;integrated security=true; TrustServerCertificate=True"
+    "DefaultConnection": "Server=your-server;initial catalog=DVLD-EFCore;User Id=your-sql-user;Password=your-sql-password; TrustServerCertificate=True"
+  },
+  "Cors": {
+    "AllowedOrigins": ["https://your-frontend-domain"]
   },
   "JwtSettings": {
     "SecretKey": "your-256-bit-secret-key-min-32-characters-long",

@@ -22,11 +22,12 @@ namespace DVLD.Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
         {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-                       .EnableSensitiveDataLogging());
+                       // Sensitive values (SQL parameters incl. PII) must never be logged in production.
+                       .EnableSensitiveDataLogging(environment.IsDevelopment()));
 
             return services;
         }
@@ -87,6 +88,13 @@ namespace DVLD.Api.Extensions
             var jwtSettings = jwtSection.Get<JwtSettings>()
                 ?? throw new InvalidOperationException("JWT settings are missing.");
 
+            // Fail fast on weak/missing keys instead of silently signing weak tokens.
+            // In production provide the key via the JwtSettings__SecretKey environment variable.
+            if (string.IsNullOrWhiteSpace(jwtSettings.SecretKey) || Encoding.UTF8.GetByteCount(jwtSettings.SecretKey) < 32)
+                throw new InvalidOperationException("JwtSettings:SecretKey must be at least 256-bit (32+ characters).");
+            if (string.IsNullOrWhiteSpace(jwtSettings.Issuer) || string.IsNullOrWhiteSpace(jwtSettings.Audience))
+                throw new InvalidOperationException("JwtSettings:Issuer and JwtSettings:Audience must be configured.");
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -112,13 +120,18 @@ namespace DVLD.Api.Extensions
             return services;
         }
 
-        public static IServiceCollection AddCorsPolicy(this IServiceCollection services)
+        public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
         {
+            // Production origins come from config/env (Cors:AllowedOrigins or Cors__AllowedOrigins__0, ...).
+            // Localhost fallback keeps zero-config local development working.
+            var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                ?? ["https://localhost:7247", "http://localhost:5003"];
+
             services.AddCors(options =>
             {
                 options.AddPolicy("DVLDApiCorsPolicy", policy =>
                 {
-                    policy.WithOrigins("https://localhost:7247", "http://localhost:5003")
+                    policy.WithOrigins(origins)
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });

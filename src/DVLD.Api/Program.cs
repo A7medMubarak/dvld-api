@@ -1,5 +1,6 @@
 using DVLD.Api.Extensions;
 using DVLD.Api.Middleware;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 
 namespace DVLD.Api
@@ -46,10 +47,13 @@ namespace DVLD.Api
                 builder.Services.AddSwagger();
 
                 // CORS
-                builder.Services.AddCorsPolicy();
+                builder.Services.AddCorsPolicy(builder.Configuration);
 
                 // Database
-                builder.Services.AddDatabase(builder.Configuration);
+                builder.Services.AddDatabase(builder.Configuration, builder.Environment);
+
+                // Liveness probe for host monitoring / deploy verification
+                builder.Services.AddHealthChecks();
 
                 // Global Exception Handling
                 builder.Services.AddGlobalExceptionHandling();
@@ -77,6 +81,13 @@ namespace DVLD.Api
                     app.UseSwaggerUI();
                 }
 
+                // Must run first: restores real client IP/scheme when behind the host's
+                // reverse proxy (rate limiting and HTTPS redirects depend on it).
+                app.UseForwardedHeaders(new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                });
+
                 app.UseMiddleware<RequestLoggingMiddleware>();
                 app.UseExceptionHandler();
                 app.UseHttpsRedirection();
@@ -86,6 +97,7 @@ namespace DVLD.Api
                 app.UseAuthorization();
 
                 app.MapControllers();
+                app.MapHealthChecks("/health");
                 app.Run();
             }
             catch (Exception ex)

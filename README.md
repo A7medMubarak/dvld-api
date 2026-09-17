@@ -135,14 +135,16 @@ Standard `DELETE` from a related table throws a foreign-key error — `Restrict`
 
 ### 11. Performance — Single-Round-Trip Pagination
 
-```sql
-SELECT ..., COUNT(*) OVER() AS TotalCount
-FROM Applications
-ORDER BY ApplicationId
-OFFSET @p_0 ROWS FETCH NEXT @p_1 ROWS ONLY
+```csharp
+// One database round trip returns the page AND the total count:
+var result = await source
+    .Skip(pageIndex * paging.PageSize)
+    .Take(paging.PageSize)
+    .Select(item => new { Item = item, TotalCount = source.Count() })
+    .ToListAsync(ct);
 ```
 
-One query returns both page data and total count via `COUNT(*) OVER()` — half the database round trips of naive pagination.
+Paging (`Skip`/`Take`) and the total count ride in the same query — half the database round trips of naive pagination (separate count query + page query). Ordering is enforced via `IOrderedQueryable<T>` so pages are deterministic, page size is capped at 50, and an empty page yields `TotalCount = 0`. The count is a scalar subquery rather than a `COUNT(*) OVER()` window function — negligible overhead at ≤50 rows per page.
 
 ---
 

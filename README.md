@@ -173,6 +173,47 @@ dotnet test
 
 ---
 
+## Deploy to Production (MonsterASP.net + Plesk)
+
+### 1. Environment variables (Plesk → your app → Environment Variables)
+
+Never put secrets in JSON or git. Set these in the hosting panel:
+
+| Variable | Value | Notes |
+|---|---|---|
+| `ASPNETCORE_ENVIRONMENT` | `Production` | Disables Swagger UI, dev logging |
+| `JwtSettings__SecretKey` | fresh 256-bit key (32+ chars) | Generate per environment, rotate on exposure |
+| `ConnectionStrings__DefaultConnection` | `Server=...;initial catalog=DVLD-EFCore;User Id=...;Password=...;TrustServerCertificate=True` | Shared hosts use SQL auth, not `integrated security` |
+| `Cors__AllowedOrigins__0` | `https://your-frontend-domain` | Add `__1`, `__2`… for more origins |
+
+Startup fails fast if the secret is missing/short or Issuer/Audience are empty.
+
+### 2. Database (run once from your machine)
+
+```powershell
+dotnet ef database update --project src\DVLD.DataAccess --startup-project src\DVLD.Api
+sqlcmd -S <prod-server> -U <sql-user> -P <sql-password> -d DVLD-EFCore -i database\seed.sql
+```
+
+Explicit step — the app never auto-migrates on startup.
+
+### 3. Publish & upload
+
+```powershell
+dotnet publish .\src\DVLD.Api\DVLD.Api.csproj -c Release
+```
+
+Upload the publish output via Plesk file manager / Web Deploy, add your domain,
+enable the free Let's Encrypt certificate, and point the host's uptime monitor at
+`GET /health`.
+
+### 4. Verify
+
+Follow [`docs/smoke-test.md`](docs/smoke-test.md) — health, login, refresh rotation,
+paged list, 401/404 shapes, and the rate-limit spot check. No frontend required.
+
+---
+
 ## Project Structure
 
 ```

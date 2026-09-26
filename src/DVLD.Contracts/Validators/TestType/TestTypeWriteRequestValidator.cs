@@ -3,9 +3,13 @@ using FluentValidation;
 
 namespace DVLD.Contracts.Validators.TestType
 {
-    public class TestTypeWriteRequestValidator : AbstractValidator<TestTypeWriteRequest>
+    // Generic base holds the shared rules. Concrete validators below exist so
+    // exact-type validator resolution (MVC auto-validation) finds them —
+    // a validator registered for the abstract base never fires for derived DTOs.
+    public abstract class TestTypeWriteRequestValidator<T> : AbstractValidator<T>
+        where T : TestTypeWriteRequest
     {
-        public TestTypeWriteRequestValidator()
+        protected TestTypeWriteRequestValidator()
         {
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Title is required.");
@@ -17,4 +21,8 @@ namespace DVLD.Contracts.Validators.TestType
                 .GreaterThanOrEqualTo(5).WithMessage("Fees must be at least 5.");
         }
     }
+
+    public class CreateTestTypeRequestValidator : TestTypeWriteRequestValidator<CreateTestTypeRequest> { }
+
+    public class UpdateTestTypeRequestValidator : TestTypeWriteRequestValidator<UpdateTestTypeRequest> { }
 }

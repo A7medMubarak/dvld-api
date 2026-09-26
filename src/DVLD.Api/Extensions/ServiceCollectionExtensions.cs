@@ -90,8 +90,9 @@ namespace DVLD.Api.Extensions
 
             // Fail fast on weak/missing keys instead of silently signing weak tokens.
             // In production provide the key via the JwtSettings__SecretKey environment variable.
-            if (string.IsNullOrWhiteSpace(jwtSettings.SecretKey) || Encoding.UTF8.GetByteCount(jwtSettings.SecretKey) < 32)
-                throw new InvalidOperationException("JwtSettings:SecretKey must be at least 256-bit (32+ characters).");
+            if (string.IsNullOrWhiteSpace(jwtSettings.SecretKey) || Encoding.UTF8.GetByteCount(jwtSettings.SecretKey) < 32
+                || jwtSettings.SecretKey == "your-super-secret-key-min-32-characters-long")
+                throw new InvalidOperationException("JwtSettings:SecretKey must be set to a private 256-bit (32+ characters) key.");
             if (string.IsNullOrWhiteSpace(jwtSettings.Issuer) || string.IsNullOrWhiteSpace(jwtSettings.Audience))
                 throw new InvalidOperationException("JwtSettings:Issuer and JwtSettings:Audience must be configured.");
 

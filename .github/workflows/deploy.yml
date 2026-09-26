@@ -43,10 +43,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish
-        # Self-contained win-x64: the .NET runtime ships inside the deployment,
-        # so startup no longer depends on which runtimes the host has installed.
-        # (Also matches 64-bit app pools required by in-process hosting.)
-        run: dotnet publish ./src/DVLD.Api/DVLD.Api.csproj -c Release -r win-x64 --self-contained -o ./publish
+        # Self-contained win-x86: site94000's pool is 32-bit (0x800700c1 proved it),
+        # so the bits must be x86 to load in-process — and self-contained bundles
+        # the x86 runtime the server is missing. Both constraints solved at once.
+        run: dotnet publish ./src/DVLD.Api/DVLD.Api.csproj -c Release -r win-x86 --self-contained -o ./publish
 
       - name: Deploy via Web Deploy
         shell: powershell

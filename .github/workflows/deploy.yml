@@ -72,5 +72,6 @@ jobs:
           $source = Join-Path $env:GITHUB_WORKSPACE 'publish'
           & $msdeploy '-verb:sync' "-source:contentPath=$source" `
             "-dest:contentPath=$siteName,computerName=$endpoint,userName=$userName,password=$password,authtype=Basic,includeAcls=False" `
-            -allowUntrusted -disableLink:AppPoolExtension -disableLink:ContentExtension -disableLink:CertificateExtension
+            -allowUntrusted -disableLink:AppPoolExtension -disableLink:ContentExtension -disableLink:CertificateExtension `
+            -enableRule:AppOffline
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

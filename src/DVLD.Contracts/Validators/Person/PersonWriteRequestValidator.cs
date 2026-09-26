@@ -3,9 +3,13 @@ using FluentValidation;
 
 namespace DVLD.Contracts.Validators.Person
 {
-    public class PersonWriteRequestValidator : AbstractValidator<PersonWriteRequest>
+    // Generic base holds the shared rules. Concrete validators below exist so
+    // exact-type validator resolution (MVC auto-validation) finds them —
+    // a validator registered for the abstract base never fires for derived DTOs.
+    public abstract class PersonWriteRequestValidator<T> : AbstractValidator<T>
+        where T : PersonWriteRequest
     {
-        public PersonWriteRequestValidator()
+        protected PersonWriteRequestValidator()
         {
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required.");
@@ -23,4 +27,8 @@ namespace DVLD.Contracts.Validators.Person
                 .GreaterThan(0).WithMessage("Nationality country is required.");
         }
     }
+
+    public class CreatePersonRequestValidator : PersonWriteRequestValidator<CreatePersonRequest> { }
+
+    public class UpdatePersonRequestValidator : PersonWriteRequestValidator<UpdatePersonRequest> { }
 }

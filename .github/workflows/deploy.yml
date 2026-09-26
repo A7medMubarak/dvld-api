@@ -43,7 +43,9 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish
-        run: dotnet publish ./src/DVLD.Api/DVLD.Api.csproj -c Release -o ./publish
+        # win-x64: in-process hosting requires the bitness to match the app pool,
+        # and shared-hosting pools are 64-bit by default (win-x86 crashed w3wp).
+        run: dotnet publish ./src/DVLD.Api/DVLD.Api.csproj -c Release -r win-x64 --no-self-contained -o ./publish
 
       - name: Deploy via Web Deploy
         shell: powershell

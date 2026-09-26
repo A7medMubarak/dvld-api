@@ -43,9 +43,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Publish
-        # win-x64: in-process hosting requires the bitness to match the app pool,
-        # and shared-hosting pools are 64-bit by default (win-x86 crashed w3wp).
-        run: dotnet publish ./src/DVLD.Api/DVLD.Api.csproj -c Release -r win-x64 --no-self-contained -o ./publish
+        # Self-contained win-x64: the .NET runtime ships inside the deployment,
+        # so startup no longer depends on which runtimes the host has installed.
+        # (Also matches 64-bit app pools required by in-process hosting.)
+        run: dotnet publish ./src/DVLD.Api/DVLD.Api.csproj -c Release -r win-x64 --self-contained -o ./publish
 
       - name: Deploy via Web Deploy
         shell: powershell

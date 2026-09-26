@@ -3,9 +3,13 @@ using FluentValidation;
 
 namespace DVLD.Contracts.Validators.LicenseClass
 {
-    public class LicenseClassValidator : AbstractValidator<LicenseClassWriteRequest>
+    // Generic base holds the shared rules. Concrete validators below exist so
+    // exact-type validator resolution (MVC auto-validation) finds them —
+    // a validator registered for the abstract base never fires for derived DTOs.
+    public abstract class LicenseClassValidator<T> : AbstractValidator<T>
+        where T : LicenseClassWriteRequest
     {
-        public LicenseClassValidator()
+        protected LicenseClassValidator()
         {
             RuleFor(x => x.ClassName)
                 .NotEmpty().WithMessage("Class name is required.");
@@ -23,4 +27,8 @@ namespace DVLD.Contracts.Validators.LicenseClass
                 .GreaterThanOrEqualTo((byte)18).WithMessage("Minimum allowed age must be at least 18.");
         }
     }
+
+    public class CreateLicenseClassRequestValidator : LicenseClassValidator<CreateLicenseClassRequest> { }
+
+    public class UpdateLicenseClassRequestValidator : LicenseClassValidator<UpdateLicenseClassRequest> { }
 }

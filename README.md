@@ -23,13 +23,21 @@
 
 ## 📸 Preview
 
-<!-- Uncomment when docs/assets/swagger.png exists (screenshot of https://dvld.tryasp.net/swagger):
+**Swagger UI — the live demo**
 
-| Swagger UI (live) |
-|:------------------|
-| <img src="docs/assets/swagger.png" width="900" alt="Swagger UI"> |
+<img src="docs/assets/swagger.png" width="900" alt="Swagger UI — DVLD API live demo">
 
--->
+**Try It: login (request → 200 response with JWT)**
+
+| Login Request | Login Response |
+|:---:|:---:|
+| <img src="docs/assets/login-request.png" width="400" alt="POST /api/auth/login request"> | <img src="docs/assets/login-response.png" width="400" alt="POST /api/auth/login — 200 OK with token"> |
+
+**Try It: authenticated call (live data from the database)**
+
+| People Request | People Response |
+|:---:|:---:|
+| <img src="docs/assets/getPeople-request.png" width="400" alt="GET /api/people request"> | <img src="docs/assets/getPeople-response.png" width="400" alt="GET /api/people — 200 OK with people list"> |
 
 ---
 

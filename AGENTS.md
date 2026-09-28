@@ -83,6 +83,7 @@ No lint, format, or CI tooling is configured.
 | 3 | ~~`PasswordService` is a `static` class with no interface — inconsistent with the rest of the DI pattern.~~ **FIXED**: Extracted `IPasswordService` interface, made `PasswordService` non-static, registered in DI. | `src/DVLD.Business/Services/PasswordService.cs` |
 | 4 | ~~`AppDbContext.cs` has `FindAsync(int)` that throws `NotImplementedException`~~ **FIXED**: Removed dead code (was never called). | `src/DVLD.DataAccess/Data/AppDbContext.cs` |
 | 5 | ~~`PersonDto.cs` has `implicit operator PersonDto(Task<PersonDto?>)` that throws `NotImplementedException`~~ **FIXED** (no longer present — operator was removed). | `src/DVLD.Contracts/Dtos/Person/PersonDto.cs` |
+| 6 | Password resets must `Verify` the hash **SELECTed back from the database** — verifying the generated hash proves nothing (UPDATE can store a different value), and `LEN(PasswordHash) = 60` is vacuous: every bcrypt hash is exactly 60 chars. Cost a 5-hour prod debug once. | `docs/password-reset.md` (the gate) |
 
 ## Secrets & Security
 

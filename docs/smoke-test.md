@@ -1,10 +1,13 @@
 # Production Smoke Test
 
 Run after every deploy. No frontend needed — PowerShell only.
-Replace `https://api.yourdomain.com` with your production URL.
+
+**Prerequisite:** after any password reset, first pass the `stored-verify = True`
+gate in `password-reset.md`. Step 2 below returns `401 Invalid credentials.` if the
+database holds a wrong or stale hash — that is a data problem, not an app problem.
 
 ```powershell
-$base = "https://api.yourdomain.com"
+$base = "https://dvld.tryasp.net"
 
 # 1. Liveness — expect "Healthy" (HTTP 200)
 Invoke-RestMethod "$base/health"
@@ -49,11 +52,30 @@ Invoke-RestMethod "$base/api/auth/logout" -Method Post `
   -Body (@{ refreshToken = $ref.refreshToken } | ConvertTo-Json)
 ```
 
-## Rate-limit spot check
+## Optional — other accounts
 
-Fire 6 rapid logins — the 6th must return **429** (`Auth` policy: 5 req/min per IP).
-If *every* request 429s from different client IPs, `ForwardedHeaders` is misconfigured
-(all clients share the proxy IP bucket).
+```powershell
+$b2 = '{"userName":"officer","password":"<officer-password>"}'
+Invoke-RestMethod "$base/api/auth/login" -Method Post -ContentType "application/json" -Body $b2
+# same pattern for viewer / <viewer-password>
+```
+
+## Rate-limit spot check (run last)
+
+Wait ~60 seconds after step 6 (and any optional logins) first — steps 2/4/5/6
+already consume the `Auth` budget (5/min/IP), so without the wait the 429 fires
+early and misleads. Then fire 6 rapid logins — the 6th must return **429**
+(`Auth` policy). If *every* request 429s from different client IPs,
+`ForwardedHeaders` is misconfigured (all clients share the proxy IP bucket).
+
+## Troubleshooting
+
+- `400 ... 'u' is an invalid start of a property name` → the inner double quotes
+  were stripped while pasting the JSON body. Type that line manually (or build
+  `$body = '{"userName":...}'`, echo `$body` to confirm the quotes survived, then
+  send `-Body $body`).
+- Step 2 `401 Invalid credentials.` → run the `password-reset.md` gate first;
+  don't start infrastructure debugging until `stored-verify = True` is proven.
 
 ## Swagger
 

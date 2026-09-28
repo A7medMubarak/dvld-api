@@ -1,8 +1,14 @@
 -- ============================================================
 -- DVLD-EFCore Seed Data
--- Run AFTER all migrations have been applied.
--- Usage: sqlcmd -S . -d DVLD-EFCore -i seed.sql
+-- Run AFTER all migrations have been applied, exactly ONCE.
+-- Usage: sqlcmd -I -b -S <server> -U <user> -P "<password>" -d <db> -i seed.sql
+--   -I = force QUOTED_IDENTIFIER ON (required: tables use unique/filtered indexes)
+--   -b = stop on first error (without it, sqlcmd prints "success" even on failure)
+-- These SET options must precede every batch, so they are first in the file.
 -- ============================================================
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+GO
 
 -- ============================================================
 -- Step 1: Countries (no FK dependencies)

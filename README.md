@@ -148,6 +148,40 @@ Paging (`Skip`/`Take`) and the total count ride in the same query — half the d
 
 ---
 
+## Live Demo
+
+Backend running in production (MonsterASP.net):
+
+| What | Link |
+|---|---|
+| Health check | https://dvld.tryasp.net/health |
+| **Swagger UI (interactive)** | **https://dvld.tryasp.net/swagger** |
+
+**Demo account (read-only):** `viewer` / `viewer456`
+
+1. Open Swagger → expand `POST /api/auth/login` → **Try it out** → enter `{"userName":"viewer","password":"viewer456"}` → **Execute** → copy `token`
+2. Click **Authorize** (top right) → enter `Bearer {token}`
+3. Execute any protected endpoint (e.g. `GET /api/people`) — real data from the live database
+
+### Test it from your terminal (curl)
+
+```bash
+# 1. Liveness
+curl https://dvld.tryasp.net/health
+
+# 2. Login — returns token + refreshToken JSON
+curl -X POST https://dvld.tryasp.net/api/auth/login -H "Content-Type: application/json" -d '{"userName":"viewer","password":"viewer456"}'
+
+# 3. Authenticated call — paste the token from step 2
+curl https://dvld.tryasp.net/api/people -H "Authorization: Bearer PASTE_TOKEN_HERE"
+```
+
+> Windows PowerShell note: type `curl.exe` instead of `curl` (PowerShell aliases `curl` to a different command).
+
+Rate limits: 5 login attempts/min per IP, 30 requests/min anonymous (Swagger UI assets excluded). Backend only — no frontend yet.
+
+---
+
 ## Quick Start
 
 ```powershell

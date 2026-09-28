@@ -79,5 +79,7 @@ early and misleads. Then fire 6 rapid logins — the 6th must return **429**
 
 ## Swagger
 
-Swagger UI is intentionally **disabled in Production** (`Program.cs` gates it to
-Development). Test with the steps above or Postman instead.
+Swagger UI in Production is **env-var gated**: it only appears when the site has
+`Swagger__Enabled=true` (MonsterASP panel → environment variables → restart the
+site). When enabled: `https://dvld.tryasp.net/swagger` shows the demo-account
+instructions. Remove the variable to turn it off again — no redeploy needed.

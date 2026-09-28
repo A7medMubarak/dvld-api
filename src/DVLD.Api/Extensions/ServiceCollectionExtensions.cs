@@ -147,6 +147,23 @@ namespace DVLD.Api.Extensions
 
             services.AddSwaggerGen(options =>
             {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "DVLD API",
+                    Version = "v1",
+                    Description = """
+                        Live demo of the Driver and Vehicle Licensing Department API (production).
+
+                        Demo account (read-only): viewer / viewer456
+
+                        1. POST /api/auth/login with {"userName":"viewer","password":"viewer456"} and copy "token"
+                        2. Click Authorize (top right), enter: Bearer {token}
+                        3. Execute any protected endpoint
+
+                        Rate limits: 5 login/min per IP, 30 requests/min anonymous.
+                        """
+                });
+
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -201,6 +218,11 @@ namespace DVLD.Api.Extensions
                 // ?? Global ??
                 options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
                 {
+                    if (ctx.Request.Path.StartsWithSegments("/swagger"))
+                    {
+                        return RateLimitPartition.GetNoLimiter("swagger");
+                    }
+
                     var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
                     if (userId == null)
                     {

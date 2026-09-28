@@ -1,159 +1,50 @@
-# DVLD API
+# 🪪 DVLD API
 
-**Driver and Vehicle Licensing Department** — a RESTful backend API built with .NET 8 that manages the full lifecycle of driver licensing: applications, test appointments, license issuance, detention, renewal, and international licensing.
+> A production-ready **Driver and Vehicle Licensing Department** API built with **ASP.NET Core 8**, **EF Core**, and **Clean Architecture**, modeling real government licensing regulations — not generic CRUD.
 
-Built for a **government licensing authority**, this system models real-world regulations and business rules — not generic CRUD.
+<p align="center">
 
----
+[🌐 Live](https://dvld.tryasp.net/swagger)
+•
+[📖 Engineering Notes](AGENTS.md)
 
-## What This Project Demonstrates
-
-### 1. Clean Architecture & Separation of Concerns
-
-The solution is split into **4 projects** with strict dependency rules:
-
-```
-DVLD.Contracts   ← DTOs, enums, interfaces, validators (no dependencies)
-DVLD.DataAccess  ← EF Core, repositories, mappings (depends only on Contracts)
-DVLD.Business    ← Services, business logic, guards (depends only on Contracts)
-DVLD.Api         ← Controllers, middleware, DI config (depends on all above)
-```
-
-The controller never touches `DbContext`. Database schema changes don't leak into the API layer. Each layer is independently testable — exactly how production .NET teams structure their code.
-
-### 2. RESTful API Design — 14 Controllers, One Convention
-
-Every controller follows the same consistent pattern:
-
-| Aspect | Convention | Example |
-|---|---|---|
-| Routes | `api/<plural-kebab>` | `api/local-driving-license-applications` |
-| GET by ID | → 200 with DTO, 404 if missing | Every controller |
-| GET list | → 200 with paginated result | Every controller |
-| POST | → 201 with Location header | 12 controllers |
-| PATCH status | → 204 No Content | `ApplicationsController` |
-| DELETE | → 204 No Content | 10 controllers |
-
-Consistent API patterns mean lower maintenance cost, predictable error handling, and reliable contracts for frontend teams.
-
-### 3. Authentication & Authorization — JWT with Refresh Token Rotation
-
-```
-POST /api/auth/login      → { accessToken, refreshToken }
-POST /api/auth/refresh    → { newAccessToken, newRefreshToken }
-POST /api/auth/logout     → revokes refresh token
-```
-
-- Passwords: **BCrypt** (work factor 11) — never stored in plaintext
-- Refresh tokens: **SHA-256 hashed** before storage — raw tokens never persisted
-- Access control: `[Authorize(Roles = "Admin")]`, `[Authorize(Roles = "Officer")]`, `[AllowAnonymous]`
-- Token rotation: Each refresh invalidates the previous token (replay attack prevention)
-
-### 4. Input Validation — FluentValidation + AutoValidation
-
-Every request is automatically validated before reaching the controller — 20+ validators, zero manual wiring:
-
-```csharp
-// Single line registers ALL validators in the assembly:
-services.AddValidatorsFromAssemblyContaining<LicenseClassWriteRequest>();
-```
-
-Invalid requests never hit business logic. Validators are decoupled, reusable, and testable in isolation.
-
-### 5. Domain Expertise — Government Licensing Workflows
-
-This system encodes actual government licensing regulations:
-
-- **Applications**: New, renewal, replacement, international permit, license release
-- **Test pipeline**: Vision → Written → Street, with pass/fail gates between stages
-- **License lifecycle**: Issue → Active → Detained → Released / Expired → Renewed
-- **International permits**: Issued against a valid local license
-- **Audit trail**: Every action tracked with `CreatedByUserId` and timestamps
-- **Business rules**: A person can hold only one active license per class, detained licenses cannot be renewed, test results determine eligibility for next stage
-
-These workflows aren't generic CRUD — they required understanding a complex domain and translating real regulations into testable, maintainable code.
-
-### 6. Global Exception Handling — Consistent Error Responses
-
-Every exception maps to a standard `ProblemDetails` response:
-
-```csharp
-ArgumentException        → 400 Bad Request
-KeyNotFoundException     → 404 Not Found
-ResourceConflictException → 409 Conflict
-UnauthorizedAccessException → 401 Unauthorized
-_                        → 500 Internal Server Error
-```
-
-**500 errors never leak details to the client** — the real exception is logged server-side with full stack trace, and the client receives only "An unexpected error occurred. Please try again later."
-
-### 7. Rate Limiting — 3 Protection Policies
-
-| Policy | Limit | Applies To |
-|---|---|---|
-| Global | 100 req/min per authenticated user | All `[Authorize]` endpoints |
-| Auth | 5 req/min per IP | Login, refresh |
-| Sensitive | 10 req/min per user | Password change |
-
-Anonymous requests to authenticated endpoints consume a separate anonymous limit. This is brute-force mitigation straight out of .NET 8's built-in rate limiter.
-
-### 8. Structured Logging — 3 Streams, Zero Blind Spots
-
-```
-logs/dvld-20260607.log       ← General app activity (14 day retention)
-logs/security-20260607.log   ← Warnings+: failed logins, 403s, 429s (30 days)
-logs/sql-20260607.log        ← EF Core SQL command logs (30 days)
-```
-
-Every request is logged with timing via `RequestLoggingMiddleware`. The `finally` block guarantees logging even on crashes — no blind spots in request observability.
-
-### 9. Testing — Comprehensive Coverage
-
-```powershell
-dotnet test
-```
-
-Controllers, services, validators, pagination, guards — every layer is tested with **NSubstitute** for mocking and **FluentAssertions** for readable assertions:
-
-- **Business rules**: duplicate applications, expired licenses, invalid state transitions
-- **Controller responses**: status codes, response shapes, error handling
-- **Edge cases**: null inputs, negative IDs, empty result sets
-
-### 10. Database — EF Core Code-First with Migrations
-
-All 15 entities configured via Fluent API, schema version-controlled as migrations:
-
-```csharp
-// Each relationship explicitly configured
-builder.HasOne(a => a.ApplicationType)
-       .WithMany()
-       .HasForeignKey(a => a.ApplicationTypeId)
-       .OnDelete(DeleteBehavior.Restrict);
-```
-
-Standard `DELETE` from a related table throws a foreign-key error — `Restrict` prevents accidental data loss at the database level.
-
-### 11. Performance — Single-Round-Trip Pagination
-
-```csharp
-// One database round trip returns the page AND the total count:
-var result = await source
-    .Skip(pageIndex * paging.PageSize)
-    .Take(paging.PageSize)
-    .Select(item => new { Item = item, TotalCount = source.Count() })
-    .ToListAsync(ct);
-```
-
-Paging (`Skip`/`Take`) and the total count ride in the same query — half the database round trips of naive pagination (separate count query + page query). Ordering is enforced via `IOrderedQueryable<T>` so pages are deterministic, page size is capped at 50, and an empty page yields `TotalCount = 0`. The count is a scalar subquery rather than a `COUNT(*) OVER()` window function — negligible overhead at ≤50 rows per page.
+</p>
 
 ---
 
-## Live Demo
+![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=for-the-badge&logo=dotnet)
+![EF Core](https://img.shields.io/badge/EF_Core-8-512BD4?style=for-the-badge)
+![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge)
+![JWT](https://img.shields.io/badge/JWT-Authentication-black?style=for-the-badge)
+![GitHub Actions](https://img.shields.io/badge/CI/CD-GitHub_Actions-2088FF?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-490_Passing-success?style=for-the-badge)
 
-Backend running in production (MonsterASP.net):
+---
 
-| What | Link |
-|---|---|
+## 📸 Preview
+
+<!-- Uncomment when docs/assets/swagger.png exists (screenshot of https://dvld.tryasp.net/swagger):
+
+| Swagger UI (live) |
+|:------------------|
+| <img src="docs/assets/swagger.png" width="900" alt="Swagger UI"> |
+
+-->
+
+---
+
+# Why This Project?
+
+Most portfolio backends stop at CRUD. Government driver licensing doesn't — it's one of the rule-densest domains a system can model: five application types, a three-stage test pipeline (vision → written → street) with pass/fail gates, one-active-license-per-class enforcement, detention and renewal rules, and international permits issued only against valid local licenses.
+
+I picked it to prove I can translate written regulations into enforced, tested code — business rules that live in services and guards, survive a 490-test suite, and run in production behind CI/CD. Not another to-do list.
+
+---
+
+# Live Demo
+
+| Service | Link |
+|---------|------|
 | Health check | https://dvld.tryasp.net/health |
 | **Swagger UI (interactive)** | **https://dvld.tryasp.net/swagger** |
 
@@ -182,85 +73,168 @@ Rate limits: 5 login attempts/min per IP, 30 requests/min anonymous (Swagger UI 
 
 ---
 
+# Key Features
+
+## Licensing Domain
+
+- Five application types: new, renewal, replacement, international permit, license release
+- Three-stage test pipeline: Vision → Written → Street, with pass/fail gates between stages
+- License lifecycle: Issue → Active → Detained → Released / Expired → Renewed
+- One active license per class; detained licenses cannot be renewed
+- International permits issued only against a valid local license
+- Full audit trail: every action carries `CreatedByUserId` and timestamps
+
+## Security
+
+- JWT access tokens + refresh-token rotation (each refresh invalidates the previous — replay protection)
+- BCrypt hashing (work factor 11); refresh tokens stored SHA-256 hashed — plaintext never persisted
+- Role-based authorization: Admin / Officer / Viewer
+- Rate limiting: global, auth (5/min/IP), sensitive (10/min) policies
+- Global exception handler → consistent `ProblemDetails`; 500s never leak internals
+- FluentValidation auto-validation: 20+ validators, zero manual wiring
+
+## API Quality
+
+- 14 controllers, one convention:
+
+| Aspect | Convention | Example |
+|---|---|---|
+| Routes | `api/<plural-kebab>` | `api/local-driving-license-applications` |
+| GET by ID | → 200 with DTO, 404 if missing | Every controller |
+| GET list | → 200 with paginated result | Every controller |
+| POST | → 201 with Location header | 12 controllers |
+| DELETE | → 204 No Content | 10 controllers |
+
+- Single-round-trip pagination: page + total count in one query, page size capped at 50
+- `AsNoTracking` reads with DTO projection inside repositories
+- Controllers stay thin — never touch `DbContext`, schema changes never leak upward
+
+## Observability & Data
+
+- 3 Serilog streams: app (14-day retention), security warnings (30-day), SQL commands (30-day)
+- Every request timed by `RequestLoggingMiddleware` — no blind spots
+- EF Core code-first: 15 entities, Fluent API configurations, migrations version-controlled
+- `Restrict` deletes protect related data at the database level
+
+---
+
+# Technology Stack
+
+## Backend
+
+- ASP.NET Core 8
+- Entity Framework Core 8
+- SQL Server
+- FluentValidation
+- JWT + BCrypt
+- Serilog
+
+## DevOps
+
+- GitHub Actions (CI/CD)
+- MonsterASP.NET
+
+---
+
+# Architecture
+
+The solution follows a layered architecture with strict dependency rules — the controller never touches `DbContext`, and database concerns never leak into business logic.
+
+```
+DVLD.Api             Controllers · middleware · JWT auth · DI config
+   │
+   ▼
+DVLD.Business        Services · business rules · guards
+   │
+   ▼
+DVLD.Contracts       DTOs · enums · interfaces · validators
+   ▲
+   │   (implemented by)
+DVLD.DataAccess      EF Core · repositories · migrations
+```
+
+For the complete architecture conventions: ➡ **[AGENTS.md](AGENTS.md)**
+
+---
+
+# Engineering Highlights
+
+✔ 4-project layered architecture
+
+✔ 490 Automated Tests
+
+✔ CI/CD Pipeline with auto-deploy
+
+✔ Production Deployment
+
+✔ JWT + Refresh-Token Rotation
+
+✔ Role-Based Access Control
+
+✔ 3-Policy Rate Limiting
+
+✔ Global Exception Middleware
+
+✔ FluentValidation Auto-Validation
+
+✔ Single-Round-Trip Pagination
+
+✔ AsNoTracking Query Optimization
+
+✔ Structured 3-Stream Logging
+
+✔ Self-Verifying Password Reset Gate
+
+---
+
+# Testing
+
+Current test suite includes:
+
+- Controller / integration tests (110)
+- Service & business-rule tests (380)
+- Validator tests
+- Pagination, guards, and edge cases (null inputs, negative IDs, empty results)
+
+Mocking with **NSubstitute**, assertions with **FluentAssertions**.
+
+Result:
+
+✅ **490 Passing Tests**
+
+---
+
+# Deployment
+
+- CI/CD: GitHub Actions → build, test, Web Deploy
+- Hosting: MonsterASP.NET
+- HTTPS: enabled
+- Health monitor: `GET /health`
+- Config: environment variables in the hosting panel (never in git)
+
+Full runbook: ➡ **[docs/deploy.md](docs/deploy.md)**
+
+---
+
 ## Quick Start
 
 ```powershell
 # Prerequisites: .NET 8 SDK, SQL Server
 
-# Clone & build
 git clone https://github.com/A7medMubarak/dvld-api.git
 cd dvld-api
 dotnet build
 
-# Setup database (requires SQL Server)
-dotnet ef database update --project src\DVLD.DataAccess --startup-project src\DVLD.Api
-sqlcmd -S . -d DVLD-EFCore -i database\seed.sql
+# Database (once): dotnet ef database update --project src\DVLD.DataAccess --startup-project src\DVLD.Api
+#                  sqlcmd -S . -d DVLD-EFCore -i database\seed.sql
 
-# Run
-dotnet run --project src\DVLD.Api
-
-# Swagger UI: https://localhost:7247/swagger
-
-# Run tests
-dotnet test
+dotnet run --project src/DVLD.Api   # Swagger: https://localhost:7247/swagger
+dotnet test                          # 490 tests
 ```
 
 ---
 
-## Deploy to Production (MonsterASP.net + Plesk)
-
-### 1. Environment variables (Plesk → your app → Environment Variables)
-
-Never put secrets in JSON or git. Set these in the hosting panel:
-
-| Variable | Value | Notes |
-|---|---|---|
-| `ASPNETCORE_ENVIRONMENT` | `Production` | Disables Swagger UI, dev logging |
-| `JwtSettings__SecretKey` | fresh 256-bit key (32+ chars) | Generate per environment, rotate on exposure |
-| `ConnectionStrings__DefaultConnection` | `Server=...;initial catalog=DVLD-EFCore;User Id=...;Password=...;TrustServerCertificate=True` | Shared hosts use SQL auth, not `integrated security` |
-| `Cors__AllowedOrigins__0` | `https://your-frontend-domain` | Add `__1`, `__2`… for more origins |
-
-Startup fails fast if the secret is missing/short or Issuer/Audience are empty.
-
-### 2. Database (run once from your machine)
-
-```powershell
-# Point ONLY this terminal at prod (session-scoped — never machine-wide,
-# or local dev will hit production). Clear it when done.
-$env:ConnectionStrings__DefaultConnection = "Server=<prod-server>;initial catalog=DVLD-EFCore;User Id=<sql-user>;Password=<sql-password>;TrustServerCertificate=True"
-
-# 1. Create all tables (4 migrations). Requires dotnet-ef 8.x:
-#    dotnet new tool-manifest; dotnet tool install dotnet-ef --version 8.0.14
-dotnet ef database update --project src\DVLD.DataAccess --startup-project src\DVLD.Api
-
-# 2. Insert starter data — RUN ONCE (re-runs fail on duplicate keys by design)
-sqlcmd -S <prod-server> -U <sql-user> -P "<sql-password>" -d DVLD-EFCore -i database\seed.sql
-
-Remove-Item Env:\ConnectionStrings__DefaultConnection
-```
-
-Verify 4 rows in the prod DB's `__EFMigrationsHistory` table afterwards.
-If `sqlcmd` times out, enable remote SQL access / whitelist your IP in the hosting
-panel first. Explicit step — the app never auto-migrates on startup.
-
-### 3. Publish via Web Deploy
-
-In Visual Studio: right-click `DVLD.Api` → **Publish** → import the host's
-`.publishsettings` file → **Publish** (Release). This compiles and uploads in one
-step — no manual file copying (source code, `tests/`, and `*.sln` never go to the server).
-
-Publishing moves files only — it does **not** set environment variables, migrate,
-or seed. Then in the hosting panel: add your domain, enable the free Let's Encrypt
-certificate, and point the uptime monitor at `GET /health`.
-
-### 4. Verify
-
-Follow [`docs/smoke-test.md`](docs/smoke-test.md) — health, login, refresh rotation,
-paged list, 401/404 shapes, and the rate-limit spot check. No frontend required.
-
----
-
-## Project Structure
+# Project Structure
 
 ```
 DVLD/
@@ -273,6 +247,7 @@ DVLD/
 │   ├── DVLD.Business.Tests/ Service-level unit tests
 │   └── DVLD.Api.Tests/      Controller integration tests
 ├── database/                Seed script
+├── docs/                    Smoke test, password reset, deployment runbooks
 ├── DVLD.sln
 ├── AGENTS.md                Architecture conventions & onboarding
 └── README.md
@@ -280,8 +255,51 @@ DVLD/
 
 ---
 
-## Let's Connect
+# Engineering Documentation
 
-This project demonstrates that I can design, build, test, and document a production-grade REST API — from database schema to authentication to deployment. I'm actively looking for a backend role where I can contribute to real systems, learn from experienced engineers, and write code that matters.
+This repository includes complete operational and engineering documentation:
+
+- **AGENTS.md** — architecture conventions, DI registration, rate-limit policies, gotchas
+- **docs/smoke-test.md** — 8-step production smoke test + rate-limit spot check
+- **docs/password-reset.md** — self-verifying password reset (stored-hash gate)
+- **docs/deploy.md** — full production deployment runbook (env vars, database, publish, verify)
+
+---
+
+# Roadmap
+
+## Completed
+
+- 4-project layered architecture
+- JWT + refresh-token rotation
+- 490 automated tests
+- CI/CD with auto-deploy
+- Production deployment (MonsterASP.NET)
+- Rate limiting (3 policies)
+- Structured 3-stream logging
+- Live Swagger demo
+- Verification gates (smoke test + stored-hash password gate)
+
+## Planned
+
+- Web frontend (React + Vite)
+- Integration tests
+- Docker Compose
+
+---
+
+# About Me
+
+Hi, I'm **Ahmed**.
+
+I'm transitioning into software engineering. DVLD is my proof that I can design, build, test, and document a production-grade REST API — from database schema and business rules to authentication, CI/CD, and a live deployment.
+
+I'm currently seeking my first Software Engineer opportunity where I can contribute, continue learning, and grow alongside experienced engineers.
+
+If you have feedback or would like to discuss the project, I'd be happy to connect.
 
 [A7medMubarak](https://github.com/A7medMubarak)
+
+---
+
+⭐ If you found this project interesting, consider giving it a star.
